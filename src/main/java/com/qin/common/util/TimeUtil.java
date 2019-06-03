@@ -26,7 +26,6 @@ public class TimeUtil {
             // 设置lenient为false. 否则SimpleDateFormat会比较宽松地验证日期，比如2007/02/29会被接受，并转换成2007/03/01
             format.setLenient(false);
             format.parse(date);
-            System.out.println(format.parse(date));
         } catch (ParseException e) {
             return false;
         }
@@ -44,7 +43,6 @@ public class TimeUtil {
             // 设置lenient为false. 否则SimpleDateFormat会比较宽松地验证日期，比如2007/02/29会被接受，并转换成2007/03/01
             format.setLenient(false);
             format.parse(date);
-            System.out.println(format.parse(date));
         } catch (ParseException e) {
             return false;
         }
@@ -62,7 +60,6 @@ public class TimeUtil {
             // 设置lenient为false. 否则SimpleDateFormat会比较宽松地验证日期，比如2007/02/29会被接受，并转换成2007/03/01
             format.setLenient(false);
             format.parse(date);
-            System.out.println(format.parse(date));
         } catch (ParseException e) {
             return false;
         }
@@ -80,7 +77,6 @@ public class TimeUtil {
             // 设置lenient为false. 否则SimpleDateFormat会比较宽松地验证日期，比如2007/02/29会被接受，并转换成2007/03/01
             format.setLenient(false);
             format.parse(date);
-            System.out.println(format.parse(date));
         } catch (ParseException e) {
             return false;
         }
@@ -98,7 +94,6 @@ public class TimeUtil {
             // 设置lenient为false. 否则SimpleDateFormat会比较宽松地验证日期，比如2007/02/29会被接受，并转换成2007/03/01
             format.setLenient(false);
             format.parse(date);
-            System.out.println(format.parse(date));
         } catch (ParseException e) {
             return false;
         }
@@ -116,7 +111,6 @@ public class TimeUtil {
             // 设置lenient为false. 否则SimpleDateFormat会比较宽松地验证日期，比如2007/02/29会被接受，并转换成2007/03/01
             format.setLenient(false);
             format.parse(date);
-            System.out.println(format.parse(date));
         } catch (ParseException e) {
             return false;
         }
@@ -134,8 +128,6 @@ public class TimeUtil {
             // 设置lenient为false. 否则SimpleDateFormat会比较宽松地验证日期，比如2007/02/29会被接受，并转换成2007/03/01
             format.setLenient(false);
             format.parse(date);
-            System.out.println(format.parse(date));
-            System.out.println(format.format(format.parse(date)));
         } catch (ParseException e) {
             return false;
         }

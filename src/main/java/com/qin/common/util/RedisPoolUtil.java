@@ -37,7 +37,7 @@ public class RedisPoolUtil {
         return jedis;
     }
 
-    public static void cloiseJedis(Jedis jedis){
+    public static void closeJedis(Jedis jedis){
         jedis.close();
     }
 }
