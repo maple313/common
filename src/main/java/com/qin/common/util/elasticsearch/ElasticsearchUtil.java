@@ -1,9 +1,12 @@
-package com.qin.common.util;
+package com.qin.common.util.elasticsearch;
 
 import com.alibaba.fastjson.JSON;
 import org.apache.http.HttpHost;
+import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.DocWriteResponse.Result;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -17,6 +20,7 @@ import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -59,22 +63,22 @@ public class ElasticsearchUtil {
 
         /*//1.添加文档：jsonString
         addDocumentByJsonString(client);
-
         //2.添加文档：jsonMap
         //addDocumentByJsonMap(client);
-
-        //2.添加文档：XContentBuilder
+        //3.添加文档：XContentBuilder
         addDocumentByXContentBuilder(client);
-
+        //4.添加文档：Object
         addDocumentByObject(client);*/
 
-        getRequestData(client);
+        //getRequestData(client);
 
-        client.close();
 
+        boolean exist = isExist(client);
+        System.out.println(exist);
+
+        deleteDocument(client);
 
         //client.close();
-
     }
 
     /**
@@ -171,7 +175,7 @@ public class ElasticsearchUtil {
 
         IndexRequest indexRequest = new IndexRequest("my_index", "my_type", "5");
         indexRequest.source(builder);
-        IndexResponse indexResponse=client.index(indexRequest,RequestOptions.DEFAULT);
+        IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
         Result result = indexResponse.getResult();
         String s = indexResponse.toString();
         System.out.println(result.toString());
@@ -189,8 +193,8 @@ public class ElasticsearchUtil {
         list.add("thinking");
 
         IndexRequest request = new IndexRequest("my_index", "my_type", "6")
-                .source("first_name","didi","last_name","dd","age",18,"about","fengyue","interests", list);
-        IndexResponse indexResponse=client.index(request,RequestOptions.DEFAULT);
+                .source("first_name", "didi", "last_name", "dd", "age", 18, "about", "fengyue", "interests", list);
+        IndexResponse indexResponse = client.index(request, RequestOptions.DEFAULT);
         Result result = indexResponse.getResult();
         String s = indexResponse.toString();
         System.out.println(result.toString());
@@ -236,7 +240,7 @@ public class ElasticsearchUtil {
 
     /**
      * @param : client
-     * @description : 添加文档————Object
+     * @description : 获取文档
      */
     private static void getRequestData(RestHighLevelClient client) throws IOException {
         GetRequest request = new GetRequest("my_index", "my_type", "1");
@@ -246,6 +250,25 @@ public class ElasticsearchUtil {
         String[] excludes = Strings.EMPTY_ARRAY;
         FetchSourceContext fetchSourceContext = new FetchSourceContext(true, includes, excludes);
         request.fetchSourceContext(fetchSourceContext);*/
+
+        //监听器
+        ActionListener<GetResponse> listener = new ActionListener<GetResponse>() {
+            @Override
+            public void onResponse(GetResponse getResponse) {
+                System.out.println("获取成功");
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                System.out.println("获取失败");
+            }
+        };
+
+        //异步获取
+        client.getAsync(request, RequestOptions.DEFAULT, listener);
+
+
+        //异步获取
         GetResponse response = client.get(request, RequestOptions.DEFAULT);
 
         Map<String, Object> source = response.getSource();
@@ -253,6 +276,7 @@ public class ElasticsearchUtil {
         Map<String, Object> sourceAsMap = response.getSourceAsMap();
         byte[] sourceAsBytes = response.getSourceAsBytes();
         BytesReference sourceInternal = response.getSourceInternal();
+
 
         System.out.println(request);
         System.out.println(response);
@@ -266,4 +290,81 @@ public class ElasticsearchUtil {
 
     }
 
+    /**
+     * @param : client
+     * @description : 判断文档是否存在
+     */
+    private static boolean isExist(RestHighLevelClient client) throws IOException{
+
+        GetRequest request = new GetRequest("my_index", "my_type", "6");
+        //1.同步判断
+        boolean exists = client.exists(request, RequestOptions.DEFAULT);
+
+        ActionListener<Boolean> listener = new ActionListener<Boolean>() {
+            @Override
+            public void onResponse(Boolean exists) {
+               if (exists){
+                   System.out.println("文档存在");
+               }else {
+                   System.out.println("文档不存在");
+               }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        };
+        //2.异步判断
+        //client.existsAsync(request, RequestOptions.DEFAULT, listener);
+
+        return exists;
+    }
+
+
+    /**
+     * @param : client
+     * @description : 删除文档
+     */
+    private static void deleteDocument(RestHighLevelClient client) throws IOException{
+
+        DeleteRequest request = new DeleteRequest("my_index", "my_type", "6");
+
+        //设置请求超时时间：2分钟
+        request.timeout(TimeValue.timeValueMinutes(2));
+        //request.timeout("2m");
+
+        //同步删除
+        DeleteResponse deleteResponse = client.delete(request, RequestOptions.DEFAULT);
+
+        //异步删除
+        ActionListener<DeleteResponse> listener = new ActionListener<DeleteResponse>() {
+            @Override
+            public void onResponse(DeleteResponse deleteResponse) {
+                System.out.println("删除后操作");
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                System.out.println("删除失败");
+            }
+        };
+        //client.deleteAsync(request, RequestOptions.DEFAULT, listener);
+
+        //返回信息
+        System.out.println(deleteResponse.toString());
+        String index = deleteResponse.getIndex();
+        String type = deleteResponse.getType();
+        String id = deleteResponse.getId();
+        long version = deleteResponse.getVersion();
+        ReplicationResponse.ShardInfo shardInfo = deleteResponse.getShardInfo();
+        if (shardInfo.getTotal() != shardInfo.getSuccessful()) {
+
+        }
+        if (shardInfo.getFailed() > 0) {
+            for (ReplicationResponse.ShardInfo.Failure failure : shardInfo.getFailures()) {
+                String reason = failure.reason();
+            }
+        }
+    }
 }
