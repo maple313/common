@@ -57,7 +57,6 @@ public class QueryDocument {
 
         //searchDocumentByHighLight(client);
 
-        searchDocumentByAggregations(client);
         client.close();
 
 
@@ -310,71 +309,7 @@ public class QueryDocument {
         }
     }
 
-    /**
-     * @param : client
-     * @description : 查询文档————Aggregations(聚合)
-     */
-    private static void searchDocumentByAggregations(RestHighLevelClient client) throws Exception {
 
-        SearchRequest searchRequest = new SearchRequest();
-
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-
-
-        //
-        TermsAggregationBuilder testAgg = AggregationBuilders.terms("testAgg").field("first_name");
-        testAgg.subAggregation(AggregationBuilders.avg("ageAgg").field("age"));
-        searchSourceBuilder.query(QueryBuilders.matchAllQuery());
-
-        searchSourceBuilder.aggregation(testAgg);
-
-        //可以指定多个index,也可以不指定，不指定查所有
-        searchRequest.indices("agg_index");
-        //可以指定多个type,也可以不指定，不指定查所有
-        searchRequest.types("agg_type");
-        searchRequest.source(searchSourceBuilder);
-
-
-        SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-
-
-        //查询信息
-        Aggregations aggregations = searchResponse.getAggregations();
-        Terms terms = searchResponse.getAggregations().get("testAgg");
-
-        for (Terms.Bucket k:terms.getBuckets()){
-            Object key = k.getKey();
-            long docCount = k.getDocCount();
-            System.out.println(key+"------------>"+docCount);
-        }
-        for (Terms.Bucket k:terms.getBuckets()){
-            Object key = k.getKey();
-            long docCount = k.getDocCount();
-
-            System.out.println(key+"------------>"+docCount);
-
-            System.out.println("+++++++++++++++++++++++++++++++++++++");
-            Avg avg = k.getAggregations().get("ageAgg");
-            double value = avg.getValue();
-            System.out.println(value);
-        }
-
-        System.out.println(aggregations.toString());
-
-        SearchHits hits = searchResponse.getHits();
-        long totalHits = hits.getTotalHits();
-        float maxScore = hits.getMaxScore();
-
-        //匹配查询的结果集
-        SearchHit[] searchHits = hits.getHits();
-        /*for (SearchHit hit : searchHits) {
-            // do something with the SearchHit
-            String sourceAsString = hit.getSourceAsString();
-            Map<String, Object> sourceAsMap = hit.getSourceAsMap();
-            System.out.println(sourceAsString);
-            System.out.println(sourceAsMap);
-        }*/
-    }
 
 
     private static RestHighLevelClient getRestHighLevelClient() throws Exception {
