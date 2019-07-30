@@ -1,4 +1,4 @@
-package com.qin.common.util.elasticsearch.query;
+package com.qin.common.elasticsearch.query;
 
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.search.SearchRequest;
@@ -49,10 +49,12 @@ public class AggregationQueryDocument {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 
         //1.按group分组
-
         TermsAggregationBuilder testAgg = AggregationBuilders.terms("group_grade").field("grade");
-        //2.分组后求平均年龄
+        //2.分组后求平均年龄:testAgg的子聚合
         testAgg.subAggregation(AggregationBuilders.avg("avg_age").field("age"));
+        //3.分组后文档数量计数
+        /*AggregationBuilders.min("min_id").field("age"); //最小年龄
+        AggregationBuilders.max("max_id").field("age"); //最大年龄*/
         testAgg.subAggregation(AggregationBuilders.count("count_id").field("_id"));
         //查询所有
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
@@ -71,14 +73,16 @@ public class AggregationQueryDocument {
             Object key = k.getKey();
             long docCount = k.getDocCount();
 
+            //子聚合信息
             Avg avg = k.getAggregations().get("avg_age");
             ValueCount count= k.getAggregations().get("count_id");
             long value1 = count.getValue();
             double value = avg.getValue();
+
+
             System.out.println("group:"+key+";"+"stu:"+value1+"count:"+docCount+";"+"avg_age:"+value);
         }
 
-        System.out.println(aggregations.toString());
 
         SearchHits hits = searchResponse.getHits();
         long totalHits = hits.getTotalHits();
@@ -88,14 +92,6 @@ public class AggregationQueryDocument {
         SearchHit[] searchHits = hits.getHits();
 
     }
-
-
-
-
-
-
-
-
 
     private static RestHighLevelClient getRestHighLevelClient() throws Exception {
         //1.指定es的集群  my-application：集群名称

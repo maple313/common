@@ -1,4 +1,4 @@
-package com.qin.common.util.elasticsearch;
+package com.qin.common.elasticsearch.index;
 
 import com.alibaba.fastjson.JSON;
 import org.apache.http.HttpHost;
@@ -16,7 +16,6 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
@@ -26,14 +25,10 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.client.RestHighLevelClient;
 //import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
-import org.springframework.boot.autoconfigure.elasticsearch.rest.RestClientAutoConfiguration;
-import org.springframework.boot.json.JsonParser;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,7 +40,7 @@ import java.util.Map;
  * @description:
  * @version: 1.0
  */
-public class ElasticsearchUtil {
+public class AddDocument {
 
     public static void main(String[] args) throws Exception {
 

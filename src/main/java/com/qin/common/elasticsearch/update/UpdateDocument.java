@@ -1,4 +1,4 @@
-package com.qin.common.util.elasticsearch.update;
+package com.qin.common.elasticsearch.update;
 
 import com.alibaba.fastjson.JSON;
 import org.apache.http.HttpHost;
